@@ -23,23 +23,28 @@ def photo_message(message):
     response = requests.get('https://yande.re/post.json?limit=1')
     json = response.json()
 
-    is_18 = False
-    for tag in tags:
-        if tag in json[0]["tags"].split():
-            is_18 = True
-            break
-
-    if is_18:
-        print(json[0]["sample_url"])
-        bot.send_message(message.chat.id, "Ага, 18+")
-        logging.warning(message.from_user.username + ' | ' + '18+ арт' + ' /last')
-        logging.warning('Теги: ' + json[0]["tags"])
+    if json[0]["tags"] == 'tagme':
+        bot.send_message(message.chat.id, 'Прости, но я не могу отправить арт в текущий момент, так как он не прошел '
+                                          'постановку тегов. Это нужно мне, чтобы фильтровать 18+ контент')
+        logging.warning(message.from_user.username + ' | ' + 'Арт с тегом tagme! Игнорирую...' + ' /last')
     else:
-        try:
-            bot.send_photo(message.chat.id, json[0]["sample_url"])
-            logging.info(message.from_user.username + ' | ' + '/last')
-        except Exception:
-            bot.send_message(message.chat.id, "Чет тг не понрав")
+        is_18 = False
+        for tag in tags:
+            if tag in json[0]["tags"].split():
+                is_18 = True
+                break
+
+        if is_18:
+            print(json[0]["sample_url"])
+            bot.send_message(message.chat.id, "Ага, 18+")
+            logging.warning(message.from_user.username + ' | ' + '18+ арт' + ' /last')
+            logging.warning('Теги: ' + json[0]["tags"])
+        else:
+            try:
+                bot.send_photo(message.chat.id, json[0]["sample_url"])
+                logging.info(message.from_user.username + ' | ' + '/last')
+            except Exception:
+                bot.send_message(message.chat.id, "Чет тг не понрав")
 
 
 bot.polling()
