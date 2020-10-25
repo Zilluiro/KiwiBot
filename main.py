@@ -35,7 +35,7 @@ def photo_message(message):
                 break
 
         if is_18:
-            print(json[0]["sample_url"])
+            #print(json[0]["sample_url"])
             bot.send_message(message.chat.id, "Ага, 18+")
             logging.warning(message.from_user.username + ' | ' + '18+ арт' + ' /last')
             logging.warning('Теги: ' + json[0]["tags"])
