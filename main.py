@@ -6,7 +6,7 @@ import logging
 bot = telebot.TeleBot('Токен сюда')
 
 tags = ["no_bra", "tits", "boobs", "anus", "pussy", "uncensored", "censored", "open_shirt", "trap", "yaoi", "cum",
-        "penis", "milk", "pantsu", "sex"]
+        "penis", "milk", "sex"]
 
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -35,16 +35,21 @@ def photo_message(message):
                 break
 
         if is_18:
-            #print(json[0]["sample_url"])
             bot.send_message(message.chat.id, "Ага, 18+")
             logging.warning(message.from_user.username + ' | ' + '18+ арт' + ' /last')
             logging.warning('Теги: ' + json[0]["tags"])
         else:
             try:
-                bot.send_photo(message.chat.id, json[0]["sample_url"])
+                tag_items = ""
+                for tag_item in json[0]["tags"].split():
+                    tag_items += '#'+tag_item+', '
+                bot.send_photo(message.chat.id, json[0]["sample_url"], tag_items)
                 logging.info(message.from_user.username + ' | ' + '/last')
+                logging.info(json[0]["tags"])
             except Exception:
                 bot.send_message(message.chat.id, "Чет тг не понрав")
+                logging.error(message.from_user.username + ' | ' + '/last')
+
 
 
 bot.polling()
