@@ -9,10 +9,10 @@ bot = telebot.TeleBot(Tg.token)
 def random_art(message):
     response = requests.get('https://yande.re/post.json?tags=order:random')
     json = response.json()
-    if json[0]["tags"] == 'tagme':
+    if json[0]["tags"] == 'tagme' or len(json[0]["tags"].split()) < 3:
         bot.send_message(message.chat.id, 'Прости, но я не могу отправить арт в текущий момент, так как он не прошел '
                                           'постановку тегов. Это нужно мне, чтобы фильтровать 18+ контент')
-        logging.warning(message.from_user.username + ' | ' + 'Арт с тегом tagme! Игнорирую...' + ' /last')
+        logging.warning(message.from_user.username + ' | ' + 'Недостаточно тегов' + ' /last')
     else:
         is_18 = False
         for tag in config.tags:
