@@ -7,6 +7,7 @@ bot = telebot.TeleBot(Tg.token)
 
 
 def random_art(message):
+    bot.send_chat_action(message.chat.id, 'upload_photo')
     response = requests.get('https://yande.re/post.json?tags=order:random')
     json = response.json()
     if json[0]["tags"] == 'tagme' or len(json[0]["tags"].split()) < 3:
