@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace KiwiBot.Helpers.Converters
 {
@@ -23,6 +24,9 @@ namespace KiwiBot.Helpers.Converters
         public static JsonSerializerSettings GenerateSerializerSettings<T>(BooruClientConfiguration configuration)
         {
             var jsonResolver = new PropertyRenameSerializerContractResolver();
+
+            if (configuration.FileUrlKey == null || configuration.TagsKey == null)
+                throw new Exception("booru's keys are not specified");
 
             jsonResolver.RenameProperty(typeof(T), "file", configuration.FileUrlKey);
             jsonResolver.RenameProperty(typeof(T), "tag", configuration.TagsKey);

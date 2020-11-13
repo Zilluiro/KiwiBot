@@ -20,7 +20,6 @@ namespace KiwiBot.Services.Implementations
         private readonly IEnumerable<IAbstractBooruFactory> _booruFactories;
         public MessageService(IEnumerable<IAbstractBooruFactory> booruFactories, IGlobalRepository repository)
         {
-            Console.WriteLine("in message service ctr");
             _booruFactories = booruFactories;
             _repository = repository;
         }
@@ -80,7 +79,7 @@ namespace KiwiBot.Services.Implementations
             }
         }
 
-        private async Task<Chat> FindChatAsync(long chatId)
+        public async Task<Chat> FindChatAsync(long chatId)
         {
             try
             {
@@ -97,7 +96,7 @@ namespace KiwiBot.Services.Implementations
             return await _repository.FindAsync<Booru>(x => x.BooruName == booru);
         }
 
-        private async Task<Chat> FindChatWithIncludesAsync(long chatId)
+        public async Task<Chat> FindChatWithIncludesAsync(long chatId)
         {
             try
             {

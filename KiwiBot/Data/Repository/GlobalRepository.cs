@@ -1,6 +1,8 @@
 ﻿using KiwiBot.Data.Entities;
 using KiwiBot.Data.Enumerations;
+using KiwiBot.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +14,12 @@ namespace KiwiBot.Data.Repository
     class GlobalRepository: IGlobalRepository
     {
         private readonly DataContext _dataContext;
+        private readonly BotSettings _configuration;
 
-        public GlobalRepository(DataContext dataContext)
+        public GlobalRepository(DataContext dataContext, IOptions<BotSettings> configuration)
         {
             _dataContext = dataContext;
+            _configuration = configuration.Value;
         }
 
         #region Generics
@@ -64,14 +68,20 @@ namespace KiwiBot.Data.Repository
 
         public async Task<Chat> RegisterChatAsync(long chatId)
         {
+            Booru defaultBooru = await FindAsync<Booru>(x => x.BooruName == _configuration.DefaultBooru)
+                ?? throw new Exception("default booru not found");
+            
             Chat chat = new Chat()
             {
                ChatId = chatId,
-               BooruId = 1,
+               Booru = defaultBooru,
                ChatMode = ChatModeEnum.SFW,
             };
 
-            return await AddAsync(chat);
+            Chat addedChat = await AddAsync(chat);
+            addedChat.Booru = defaultBooru;
+
+            return addedChat;
         }
     }
 }

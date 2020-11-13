@@ -14,10 +14,9 @@ namespace KiwiBot
         {
             try
             {
-                await _telegramBot.AnswerCallbackQueryAsync(callback.Id);
-
                 await messageService.UpdateChatModeAsync(callback.Message.Chat.Id, callback.Data);
-                await _telegramBot.SendTextMessageAsync(callback.Message.Chat.Id, $"{callback.Data} mode enabled");
+                
+                await _telegramBot.AnswerCallbackQueryAsync(callback.Id, $"{callback.Data} mode enabled");
             }catch(Exception e)
             {
                 await _telegramBot.SendTextMessageAsync(callback.Message.Chat.Id, e.Message);
@@ -29,11 +28,10 @@ namespace KiwiBot
         public async Task ChangeBooruCallbackAsync(CallbackQuery callback, IMessageService messageService)
         {
             try
-            {
-                await _telegramBot.AnswerCallbackQueryAsync(callback.Id);
-
+            {   
                 await messageService.UpdateChoosenBooruAsync(callback.Message.Chat.Id, callback.Data);
-                await _telegramBot.SendTextMessageAsync(callback.Message.Chat.Id, $"{callback.Data} chosen");
+
+                await _telegramBot.AnswerCallbackQueryAsync(callback.Id, $"{callback.Data} chosen");
             }catch(Exception e)
             {
                 await _telegramBot.SendTextMessageAsync(callback.Message.Chat.Id, e.Message);

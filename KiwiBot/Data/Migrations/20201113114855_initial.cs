@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace KiwiBot.Migrations
+namespace KiwiBot.Data.Migrations
 {
     public partial class initial : Migration
     {

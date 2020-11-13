@@ -4,17 +4,11 @@ using System;
 
 namespace KiwiBot.Data
 {
-    partial class DataContext : DbContext, IDisposable
+    partial class DataContext : DbContext
     {
         public DataContext(DbContextOptions<DataContext> options): base(options)
         {
-            Console.WriteLine("In dataContext ctr");
         }
-
-        public override void Dispose() {
-            base.Dispose();
-            Console.WriteLine("dataContext disposed");
-        }       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

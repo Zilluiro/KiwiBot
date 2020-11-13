@@ -14,5 +14,7 @@ namespace KiwiBot.Services
         Task UpdateChatModeAsync(long chatId, string mode);
         Task UpdateChoosenBooruAsync(long chatId, string booru);
         Task<List<Booru>> GetBoorusAsync();
+        Task<Chat> FindChatAsync(long chatId);
+        Task<Chat> FindChatWithIncludesAsync(long chatId);
     }
 }

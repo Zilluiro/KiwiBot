@@ -41,7 +41,6 @@ namespace KiwiBot.BooruClients
                 if (reponse.IsSuccessStatusCode)
                 {
                     string content = await reponse.Content.ReadAsStringAsync();
-                    Console.WriteLine(content);
                     TModel model = _dataConverter.From<TModel>(content);
                     return model;
                 }

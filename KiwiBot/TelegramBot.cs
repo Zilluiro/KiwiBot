@@ -118,12 +118,16 @@ namespace KiwiBot
             CallbackQuery query = callbackQueryEventArgs.CallbackQuery;
 
             _logger.LogInformation($"received callback: {query.Id} {query.Data}");
-            string command = query.Message.Text;
+            string command = query.Message.Text;    
 
-            if (_registeredCommands.ContainsKey(command))
+            MethodInfo foundCommand = _registeredCommands.ToList()
+                .Where(x => command.StartsWith(x.Key))
+                .Select(x => x.Value).FirstOrDefault();
+
+            if (foundCommand is object) // _registeredCommands.ContainsKey(command)
             {
-                MethodInfo foundCommand = _registeredCommands[command];
-                List<object> arguments = new List<object>{ query };
+                // MethodInfo foundCommand = _registeredCommands[command];
+                List<object> arguments = new List<object> { query };
 
                 using(var scope = _scopeFactory.CreateScope())
                 {

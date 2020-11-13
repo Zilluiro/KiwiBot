@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace KiwiBot.Migrations
+namespace KiwiBot.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20201112205046_initial")]
+    [Migration("20201113114855_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -42,19 +42,17 @@ namespace KiwiBot
         [Command("/random")]
         public async Task RandomCommandAsync(Message message, IMessageService messageService)
         {
-            AbstractPostModel post = null;
             try
             {
                 await _telegramBot.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
 
-                post = await messageService.GetRandomPictureAsync(message.Chat.Id) ?? throw new Exception("no data available");
+                AbstractPostModel post = await messageService.GetRandomPictureAsync(message.Chat.Id) ?? throw new Exception("no data available");
                 await _telegramBot.SendPhotoAsync(message.Chat.Id, new InputOnlineFile(new Uri(post.FileUrl)), post.Tags);
             }
             catch(Exception e)
             {
                 await _telegramBot.SendTextMessageAsync(message.Chat.Id, e.Message);
                 _logger.LogError(e.Message);
-                _logger.LogError(post.FileUrl);
             }
         }
 
@@ -63,7 +61,6 @@ namespace KiwiBot
         {
             try
             {
-                Console.WriteLine(message.Chat.FirstName);
                 await messageService.RegisterChatAsync(message.Chat.Id);
             }
             catch(Exception e)
@@ -79,6 +76,8 @@ namespace KiwiBot
             try
             {
                 await _telegramBot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+                Data.Entities.Chat currentChat = await messageService.FindChatWithIncludesAsync(message.Chat.Id);
+
                 var chooseModeKeyboard = new InlineKeyboardMarkup(new[]
                 {
                     new []
@@ -90,7 +89,7 @@ namespace KiwiBot
 
                 await _telegramBot.SendTextMessageAsync(
                     chatId: message.Chat.Id,
-                    text: "Choose mode",
+                    text: $"Choose mode (Current mode is {currentChat?.ChatMode})",
                     replyMarkup: chooseModeKeyboard
                 );
 
@@ -102,7 +101,7 @@ namespace KiwiBot
 
                 await _telegramBot.SendTextMessageAsync(
                     chatId: message.Chat.Id,
-                    text: "Choose booru",
+                    text: $"Choose booru (Current booru is {currentChat?.Booru.BooruName})",
                     replyMarkup: chooseBooruKeyboard
                 );
             }
