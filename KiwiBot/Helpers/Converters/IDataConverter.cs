@@ -1,4 +1,4 @@
-﻿namespace KiwiBot.Extensions.Converters
+﻿namespace KiwiBot.Helpers.Converters
 {
     interface IDataConverter
     {

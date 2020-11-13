@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
 
-namespace KiwiBot.Extensions.Converters
+namespace KiwiBot.Helpers.Converters
 {
-    class XmlConverter: IDataConverter
+    class XmlModelConverter: IDataConverter
     {
         public string To<T>(T obj) where T : class
         {

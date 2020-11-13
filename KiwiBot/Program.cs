@@ -1,16 +1,60 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using KiwiBot.BooruClients.Factories;
+using KiwiBot.Data;
+using KiwiBot.Data.Repository;
+using KiwiBot.Extensions;
+using KiwiBot.Helpers;
+using KiwiBot.Services;
+using KiwiBot.Services.Implementations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace KiwiBot
 {
     public class Program 
     {
-        public static void Main()
+        public static async Task Main(string[] args)
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            Application application = new Application(serviceCollection);
+            var builder = CreateHostBuilder(args).Build();
 
-            application.Start(serviceCollection);
+            using (var context = builder.Services.GetService<DataContext>())
+            {
+                context.Database.Migrate();
+                context.Initialize();
+            }
+
+            await builder.RunAsync();
         }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
+            {
+                services.AddDbContext<DataContext>(options =>
+                {
+                    options.UseSqlServer(hostContext.Configuration.GetConnectionString("DefaultConnection"));
+                });
+
+                services.AddHttpClient();
+                services.AddLogging(builder =>
+                {
+                    builder.AddConsole(); 
+                });
+
+                // register all implementations of IAbstractBooruFactory
+                Assembly.GetEntryAssembly().GetTypesAssignableFrom<IAbstractBooruFactory>().ForEach((t) =>
+                {
+                    services.AddScoped(typeof(IAbstractBooruFactory), t);
+                });
+
+                services.AddScoped<IMessageService, MessageService>();
+                services.AddScoped<IGlobalRepository, GlobalRepository>();
+                services.AddSingleton<IHostedService, TelegramBot>();
+
+                services.Configure<BotSettings>(hostContext.Configuration.GetSection("BotSettings"));
+            });
     }
 }
