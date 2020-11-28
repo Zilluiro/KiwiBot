@@ -2,6 +2,7 @@
 using KiwiBot.Data;
 using KiwiBot.Data.Repository;
 using KiwiBot.Extensions;
+using KiwiBot.Handlers;
 using KiwiBot.Helpers;
 using KiwiBot.Services;
 using KiwiBot.Services.Implementations;
@@ -50,7 +51,15 @@ namespace KiwiBot
                     services.AddScoped(typeof(IAbstractBooruFactory), t);
                 });
 
+                // register all handlers
+                Assembly.GetEntryAssembly().GetTypesAssignableFrom<BaseHandler>().ForEach((t) =>
+                {
+                    services.AddScoped(t);
+                });
+
                 services.AddScoped<IMessageService, MessageService>();
+                services.AddScoped<IChatService, ChatService>();
+                services.AddScoped<IBooruService, BooruService>();
                 services.AddScoped<IGlobalRepository, GlobalRepository>();
                 services.AddSingleton<IHostedService, TelegramBot>();
 

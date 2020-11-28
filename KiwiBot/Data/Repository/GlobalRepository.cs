@@ -16,10 +16,9 @@ namespace KiwiBot.Data.Repository
         private readonly DataContext _dataContext;
         private readonly BotSettings _configuration;
 
-        public GlobalRepository(DataContext dataContext, IOptions<BotSettings> configuration)
+        public GlobalRepository(DataContext dataContext)
         {
             _dataContext = dataContext;
-            _configuration = configuration.Value;
         }
 
         #region Generics
@@ -66,22 +65,10 @@ namespace KiwiBot.Data.Repository
         }
         #endregion
 
-        public async Task<Chat> RegisterChatAsync(long chatId)
+        public async Task<Booru> GetSelectedBooruAsync(long chatId)
         {
-            Booru defaultBooru = await FindAsync<Booru>(x => x.BooruName == _configuration.DefaultBooru)
-                ?? throw new Exception("default booru not found");
-            
-            Chat chat = new Chat()
-            {
-               ChatId = chatId,
-               Booru = defaultBooru,
-               ChatMode = ChatModeEnum.SFW,
-            };
-
-            Chat addedChat = await AddAsync(chat);
-            addedChat.Booru = defaultBooru;
-
-            return addedChat;
+            return await _dataContext.Boorus.Include(x => x.Chats)
+                .FirstOrDefaultAsync(x => x.Chats.Any(x => x.ChatId == chatId));
         }
     }
 }

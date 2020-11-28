@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace KiwiBot.Data.Entities
 {
@@ -19,5 +20,7 @@ namespace KiwiBot.Data.Entities
         public string TagsKey { get; set; }
 
         public string FileUrlKey { get; set; }
+
+        public List<Chat> Chats { get; set; }
     }
 }

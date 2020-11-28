@@ -1,0 +1,26 @@
+﻿using System.Collections.Generic;
+using Telegram.Bot.Types.ReplyMarkups;
+
+namespace KiwiBot.Constants
+{
+    static class InlineKeyboards
+    {
+        public static readonly InlineKeyboardMarkup modeKeyboard = new InlineKeyboardMarkup(
+            new List<InlineKeyboardButton>
+            {
+                InlineKeyboardButton.WithCallbackData("SFW",  "/SFW"),
+                InlineKeyboardButton.WithCallbackData("NSFW", "/NSFW"),
+            }
+        );
+
+
+        public static readonly InlineKeyboardMarkup settingsKeyboard = new InlineKeyboardMarkup(new[]
+        {
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Change source"),
+                InlineKeyboardButton.WithCallbackData("Change mode"),
+            }
+        });
+    }
+}

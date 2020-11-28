@@ -1,4 +1,7 @@
 ﻿using KiwiBot.Attributes;
+using KiwiBot.Data.Entities;
+using KiwiBot.Extensions;
+using KiwiBot.Handlers;
 using KiwiBot.Helpers;
 using KiwiBot.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +18,8 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults;
+using Chat = KiwiBot.Data.Entities.Chat;
 
 namespace KiwiBot
 {
@@ -23,7 +28,7 @@ namespace KiwiBot
         private readonly TelegramBotClient _telegramBot;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<TelegramBot> _logger;
-        private readonly Dictionary<string, MethodInfo> _registeredCommands = new Dictionary<string, MethodInfo>();
+        private readonly Dictionary<Type, Dictionary<string, MethodInfo>> _registeredHandlers = new Dictionary<Type, Dictionary<string, MethodInfo>>();
 
         public TelegramBot(IServiceScopeFactory scopeFactory, IOptions<BotSettings> configuration, 
             ILogger<TelegramBot> logger)
@@ -47,99 +52,113 @@ namespace KiwiBot
         {
             RegisterCommands();
 
-            _telegramBot.OnMessage += ProcessMessageAsync;
-            _telegramBot.OnCallbackQuery += ProcessCallbacksAsync;
+            _telegramBot.OnMessage += (sender, e) => ProcessMessageAsync(sender, e, typeof(MessageHandler));
+            _telegramBot.OnCallbackQuery += (sender, e) => ProcessCallbacksAsync(sender, e, typeof(CallbackHandler));
         }
 
         private void RegisterCommands()
         {
-            MethodInfo[] methods = typeof(TelegramBot).GetMethods();
-
-            foreach(MethodInfo method in methods)
+            Assembly.GetEntryAssembly().GetTypesAssignableFrom<BaseHandler>().ForEach((type) =>
             {
-                object[] attributes = method.GetCustomAttributes(true);
-                foreach(Attribute attribute in attributes)
+                Dictionary<string, MethodInfo> commands = new Dictionary<string, MethodInfo>();
+                MethodInfo[] methods = type.GetMethods();
+
+                foreach(MethodInfo method in methods)
                 {
-                    if (attribute is CommandAttribute)
-                    {
-                        CommandAttribute commandAttribute = attribute as CommandAttribute;
+                    CommandAttribute attribute = method.GetCustomAttributes(true).FirstOrDefault(x => x is CommandAttribute == true) as CommandAttribute;
 
-                        foreach(string command in commandAttribute.Commands)
-                            _registeredCommands.Add(command, method);
-                    }
+                    if (attribute is not object)
+                        continue;
+
+                    attribute.Commands.ForEach((command) => commands.Add(command, method));
                 }
-            }
+
+                _registeredHandlers.Add(type, commands);
+            });
         }
 
-        private bool ParametersContainsMessageService(ParameterInfo[] parameters)
-        {
-            return parameters.Any(x => x.ParameterType.FullName == typeof(IMessageService).FullName);
-        }
-
-        private async Task ExecuteMethodAsync(MethodInfo command, object[] arguments)
+        private async Task ExecuteMethodAsync(MethodInfo command, object instance, object[] arguments)
         {
             bool isAwaitable = command.ReturnType.GetMethod(nameof(Task.GetAwaiter)) != null;
 
             if (isAwaitable)
-                await (Task)command.Invoke(this, arguments);
+                await (Task)command.Invoke(instance, arguments);
             else
                 command.Invoke(this, arguments);
         }
 
-        private async void ProcessMessageAsync(object sender, MessageEventArgs messageEventArgs)
+        private async Task<(Chat chat, bool required)> CheckRegistration(MethodInfo foundCommand, IChatService chatService, long chatId)
         {
-            Message message = messageEventArgs.Message;
-            if (message == null || message.Type != MessageType.Text)
-                return;
-            
-            string command = message.Text.Split(' ').First();
-            _logger.LogInformation($"received command: {command}");
+            RegisteredAttribute attribute = foundCommand.GetCustomAttributes(true).OfType<RegisteredAttribute>().FirstOrDefault();
+            return (attribute is object) ? (await chatService.FindChatAsync(chatId), true) : default;
+        }
 
-            if (_registeredCommands.ContainsKey(command))
+
+        private async Task ProcessCommand(Type handler, QueryContext context)
+        {
+            Dictionary<string, MethodInfo> allCommands = _registeredHandlers[handler] ?? throw new Exception("handler not found");
+            MethodInfo foundCommand = allCommands.ToList().Where(x => context.Command.StartsWith(x.Key)).Select(x => x.Value).FirstOrDefault();
+
+            if (foundCommand is object)
             {
-                MethodInfo foundCommand = _registeredCommands[command];
-                List<object> arguments = new List<object> { message };
+                List<object> arguments = new List<object>();
+                long chatId = context.Message.Chat.Id;
 
                 using(var scope = _scopeFactory.CreateScope())
                 {
-                    if (ParametersContainsMessageService(foundCommand.GetParameters()))
-                    {
-                        IMessageService messageService = scope.ServiceProvider.GetService<IMessageService>();
-                        arguments.Add(messageService);
+                    (Chat chat, bool required) = await CheckRegistration(foundCommand, scope.ServiceProvider.GetService<IChatService>(), chatId);
+                    if (chat == null && required) {
+                        await _telegramBot.SendTextMessageAsync(chatId, "press /start to register chat");
+                        return;
                     }
+                    context.Chat = chat;
                     
-                    await ExecuteMethodAsync(foundCommand, arguments.ToArray());
+                    arguments.Add(context);
+                    object instance = scope.ServiceProvider.GetService(handler);
+                    await ExecuteMethodAsync(foundCommand, instance, arguments.ToArray());
                 }
             }
         }
 
-        private async void ProcessCallbacksAsync(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
+        private async void ProcessMessageAsync(object sender, MessageEventArgs messageEventArgs, Type handler)
+        {
+            Message message = messageEventArgs.Message;
+            if (message == null || message.Type != MessageType.Text)
+                return;
+
+            string command = message.Text.Split(' ').First();
+            _logger.LogInformation($"received command: {command}");
+
+            QueryContext context = new QueryContext
+            {
+                Command = command,
+                Message = message,
+                TelegramBotClient = _telegramBot,
+            };
+            await ProcessCommand(handler, context);
+        }
+
+        private async void ProcessCallbacksAsync(object sender, CallbackQueryEventArgs callbackQueryEventArgs, Type handler)
         {
             CallbackQuery query = callbackQueryEventArgs.CallbackQuery;
 
-            _logger.LogInformation($"received callback: {query.Id} {query.Data}");
-            string command = query.Message.Text;    
+            _logger.LogInformation($"received callback: {query.Id} {query.Data} {query.Message.Text}");
 
-            MethodInfo foundCommand = _registeredCommands.ToList()
-                .Where(x => command.StartsWith(x.Key))
-                .Select(x => x.Value).FirstOrDefault();
-
-            if (foundCommand is object) // _registeredCommands.ContainsKey(command)
+            string command = query.Data;
+            if (command.StartsWith('/'))
             {
-                // MethodInfo foundCommand = _registeredCommands[command];
-                List<object> arguments = new List<object> { query };
-
-                using(var scope = _scopeFactory.CreateScope())
-                {
-                    if (ParametersContainsMessageService(foundCommand.GetParameters()))
-                    {
-                        IMessageService messageService = scope.ServiceProvider.GetService<IMessageService>();
-                        arguments.Add(messageService);
-                    }
-                    
-                    await ExecuteMethodAsync(foundCommand, arguments.ToArray());
-                }
+                command = query.Message.Text;
+                query.Data = query.Data.Substring(1);
             }
+            
+            QueryCallbackContext context = new QueryCallbackContext
+            {
+                Command = command,
+                Message = query.Message,
+                TelegramBotClient = _telegramBot,
+                Callback = query,
+            };
+            await ProcessCommand(handler, context);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

@@ -1,6 +1,5 @@
 ﻿using KiwiBot.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace KiwiBot.Data
 {
