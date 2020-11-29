@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace KiwiBot.BooruClients
+namespace KiwiBot.BooruClients.Abstract
 {
     abstract class AbstractBooruClient
     {
@@ -25,7 +25,7 @@ namespace KiwiBot.BooruClients
             _configuration = configuration;
         }
 
-        protected Dictionary<string, string> AddTags(Dictionary<string, string> dict, List<string> tags)
+        protected static Dictionary<string, string> AddTags(Dictionary<string, string> dict, List<string> tags)
         {
             if (tags.Count > 0)
                 dict.Add("tags", tags.Aggregate((left, right) => $"{left} {right}"));
@@ -47,13 +47,32 @@ namespace KiwiBot.BooruClients
 
                 throw new Exception();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception("cannot retrieve data from api");
             }
         }
 
-        protected async Task<HttpResponseMessage> MakeRequestAsync(string url, Dictionary<string, string> query)
+        protected async Task<string> RetrieveDataAsync(string url, Dictionary<string, string> query)
+        {
+            try
+            {
+                HttpResponseMessage reponse = await MakeRequestAsync(url, query);
+
+                if (reponse.IsSuccessStatusCode)
+                {
+                    return await reponse.Content.ReadAsStringAsync();
+                }
+
+                throw new Exception();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("cannot retrieve data from api");
+            }
+        }
+
+        private async Task<HttpResponseMessage> MakeRequestAsync(string url, Dictionary<string, string> query)
         {
             HttpClient client = _httpClientFactory.CreateClient();
 
@@ -63,7 +82,7 @@ namespace KiwiBot.BooruClients
             return response;
         }
 
-        public abstract Task<AbstractPostModel> GetLastPictureAsync(ChatModeEnum mode);
-        public abstract Task<AbstractPostModel> GetRandomPictureAsync(ChatModeEnum mode);
+        public abstract Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode);
+        public abstract Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode);
     }
 }

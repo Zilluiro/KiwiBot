@@ -2,7 +2,7 @@
 
 namespace KiwiBot.DataModels
 {
-    class CompatiblePostModel: AbstractPostModel
+    class JsonCompatiblePostModel: BasePostModel
     {
         [JsonProperty(PropertyName = "tag")]
         public override string Tags { get; set; }

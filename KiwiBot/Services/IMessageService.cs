@@ -7,7 +7,7 @@ namespace KiwiBot.Services
 {
     interface IMessageService
     {
-        Task<AbstractPostModel> GetLastPictureAsync(Chat chat);
-        Task<AbstractPostModel> GetRandomPictureAsync(Chat chat);
+        Task<BasePostModel> GetLastPictureAsync(Chat chat);
+        Task<BasePostModel> GetRandomPictureAsync(Chat chat);
     }
 }

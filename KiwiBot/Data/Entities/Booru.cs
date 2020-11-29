@@ -15,12 +15,9 @@ namespace KiwiBot.Data.Entities
         public string ApiEndpoint { get;set; }
 
         [Required]
-        public bool ApiCompatible { get; set; }
+        public int EngineId { get;set; }
 
-        public string TagsKey { get; set; }
-
-        public string FileUrlKey { get; set; }
-
+        public Engine Engine { get; set; }
         public List<Chat> Chats { get; set; }
     }
 }

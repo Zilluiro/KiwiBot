@@ -1,8 +1,7 @@
-﻿using KiwiBot.BooruClients;
+﻿using KiwiBot.BooruClients.Abstract;
 using KiwiBot.Data.Entities;
 using KiwiBot.Data.Repository;
 using KiwiBot.DataModels;
-using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -25,25 +24,27 @@ namespace KiwiBot.Services.Implementations
         private string BeautifyTags(string tags)
         {
             string pattern = @"(\+|-|\(|\)|'|\.|&|/|\?)";
-            return tags?.Split(' ').Aggregate(string.Empty, (left, right) => $"{left} #{Regex.Replace(right, pattern, "_")}");
+            return tags?.Split(' ').Aggregate(string.Empty, 
+                (left, right) => $"{left}" +
+            $" {(right.Length > 1 == true ? "#": string.Empty)}{Regex.Replace(right, pattern, "_")}");
         }
 
-        public async Task<AbstractPostModel> GetLastPictureAsync(Chat chat)
+        public async Task<BasePostModel> GetLastPictureAsync(Chat chat)
         {
             Booru booru = await _chatService.GetSelectedBooruAsync(chat.ChatId);
             AbstractBooruClient booruService = _booruService.GetBooruClient(booru);
 
-            AbstractPostModel model = await booruService.GetLastPictureAsync(chat.ChatMode);
+            BasePostModel model = await booruService.GetLastPictureAsync(chat.ChatMode);
             model.Tags = BeautifyTags(model.Tags);
             return model;
         }
 
-        public async Task<AbstractPostModel> GetRandomPictureAsync(Chat chat)
+        public async Task<BasePostModel> GetRandomPictureAsync(Chat chat)
         {
             Booru booru = await _chatService.GetSelectedBooruAsync(chat.ChatId);
             AbstractBooruClient booruService = _booruService.GetBooruClient(booru);
 
-            AbstractPostModel model = await booruService.GetRandomPictureAsync(chat.ChatMode);
+            BasePostModel model = await booruService.GetRandomPictureAsync(chat.ChatMode);
             model.Tags = BeautifyTags(model.Tags);
             return model;
         }

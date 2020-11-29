@@ -1,11 +1,11 @@
 ﻿using KiwiBot.Data.Entities;
 
-namespace KiwiBot.BooruClients.Factories
+namespace KiwiBot.BooruClients.Abstract
 {
     interface IAbstractBooruFactory
     {
         AbstractBooruClient CreateBooruClient(Booru booru);
 
-        string FactoryName { get; }
+        string Engine { get; }
     }
 }

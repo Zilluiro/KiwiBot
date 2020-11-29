@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using KiwiBot.DataModels;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace KiwiBot.Helpers.Converters
@@ -18,7 +19,7 @@ namespace KiwiBot.Helpers.Converters
 
         public T From<T>(string str) where T : class
         {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(SafeBooruPostsModel));
 
             using(StringReader reader = new StringReader(str))
             {

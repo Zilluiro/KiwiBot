@@ -77,7 +77,7 @@ namespace KiwiBot
             });
         }
 
-        private async Task ExecuteMethodAsync(MethodInfo command, object instance, object[] arguments)
+        private async Task ExecuteMethodAsync(MethodInfo command, object instance, object[] arguments = null)
         {
             bool isAwaitable = command.ReturnType.GetMethod(nameof(Task.GetAwaiter)) != null;
 
@@ -87,7 +87,7 @@ namespace KiwiBot
                 command.Invoke(this, arguments);
         }
 
-        private async Task<(Chat chat, bool required)> CheckRegistration(MethodInfo foundCommand, IChatService chatService, long chatId)
+        private static async Task<(Chat chat, bool required)> CheckRegistration(MethodInfo foundCommand, IChatService chatService, long chatId)
         {
             RegisteredAttribute attribute = foundCommand.GetCustomAttributes(true).OfType<RegisteredAttribute>().FirstOrDefault();
             return (attribute is object) ? (await chatService.FindChatAsync(chatId), true) : default;
@@ -101,7 +101,6 @@ namespace KiwiBot
 
             if (foundCommand is object)
             {
-                List<object> arguments = new List<object>();
                 long chatId = context.Message.Chat.Id;
 
                 using(var scope = _scopeFactory.CreateScope())
@@ -113,9 +112,10 @@ namespace KiwiBot
                     }
                     context.Chat = chat;
                     
-                    arguments.Add(context);
                     object instance = scope.ServiceProvider.GetService(handler);
-                    await ExecuteMethodAsync(foundCommand, instance, arguments.ToArray());
+                    (instance as BaseHandler).Context = context;
+
+                    await ExecuteMethodAsync(foundCommand, instance);
                 }
             }
         }
@@ -148,7 +148,7 @@ namespace KiwiBot
             if (command.StartsWith('/'))
             {
                 command = query.Message.Text;
-                query.Data = query.Data.Substring(1);
+                query.Data = query.Data[1..];
             }
             
             QueryCallbackContext context = new QueryCallbackContext

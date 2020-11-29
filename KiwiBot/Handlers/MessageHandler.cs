@@ -28,90 +28,90 @@ namespace KiwiBot.Handlers
 
         [Registered]
         [Command("/ping", "/test")]
-        public async Task EchoCommandAsync(QueryContext context)
+        public async Task EchoCommandAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
 
-            await client.SendChatActionAsync(context.Message.Chat.Id, ChatAction.Typing);
-            await client.SendTextMessageAsync(context.Message.Chat.Id, "pong");
+            await client.SendChatActionAsync(Context.Message.Chat.Id, ChatAction.Typing);
+            await client.SendTextMessageAsync(Context.Message.Chat.Id, "pong");
         }
 
         [Registered]
         [Command("/last")]
-        public async Task LastCommandAsync(QueryContext context)
+        public async Task LastCommandAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
             try
             {
-                await client.SendChatActionAsync(context.Chat.ChatId, ChatAction.UploadPhoto);
+                await client.SendChatActionAsync(Context.Chat.ChatId, ChatAction.UploadPhoto);
 
-                AbstractPostModel post = await _messageService.GetLastPictureAsync(context.Chat) ?? throw new Exception("no data available");
-                await client.SendPhotoAsync(context.Chat.ChatId, new InputOnlineFile(post.FileUrl), post.Tags);
+                BasePostModel post = await _messageService.GetLastPictureAsync(Context.Chat) ?? throw new Exception("no data available");
+                await client.SendPhotoAsync(Context.Chat.ChatId, new InputOnlineFile(post.FileUrl), post.Tags);
             }
             catch(Exception e)
             {
-                await client.SendTextMessageAsync(context.Chat.ChatId, e.Message);
+                await client.SendTextMessageAsync(Context.Chat.ChatId, e.Message);
                 _logger.LogError(e.Message);
             }
         }
 
         [Registered]
         [Command("/random")]
-        public async Task RandomCommandAsync(QueryContext context)
+        public async Task RandomCommandAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
             try
             {
-                await client.SendChatActionAsync(context.Chat.ChatId, ChatAction.UploadPhoto);
+                await client.SendChatActionAsync(Context.Chat.ChatId, ChatAction.UploadPhoto);
 
-                AbstractPostModel post = await _messageService.GetRandomPictureAsync(context.Chat) ?? throw new Exception("no data available");
-                await client.SendPhotoAsync(context.Chat.ChatId, new InputOnlineFile(new Uri(post.FileUrl)), post.Tags);
+                BasePostModel post = await _messageService.GetRandomPictureAsync(Context.Chat) ?? throw new Exception("no data available");
+                await client.SendPhotoAsync(Context.Chat.ChatId, new InputOnlineFile(new Uri(post.FileUrl)), post.Tags);
             }
             catch(Exception e)
             {
-                await client.SendTextMessageAsync(context.Chat.ChatId, e.Message);
+                await client.SendTextMessageAsync(Context.Chat.ChatId, e.Message);
                 _logger.LogError(e.Message);
             }
         }
 
         [Command("/start")]
-        public async Task StartCommandAsync(QueryContext context)
+        public async Task StartCommandAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
 
             try
             {
-                await _chatService.RegisterChatAsync(context.Message.Chat.Id);
+                await _chatService.RegisterChatAsync(Context.Message.Chat.Id);
             }
             catch (Exception e)
             {
-                await client.SendTextMessageAsync(context.Message.Chat.Id, e.Message);
+                await client.SendTextMessageAsync(Context.Message.Chat.Id, e.Message);
                 _logger.LogError(e.Message);
             }
         }
 
         [Registered]
         [Command("/settings")]
-        public async Task SettingsCommandAsync(QueryContext context)
+        public async Task SettingsCommandAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
 
             try
             {
-                await client.SendChatActionAsync(context.Message.Chat.Id, ChatAction.Typing);
-                Booru selectedBooru = await _chatService.GetSelectedBooruAsync(context.Chat.ChatId);
+                await client.SendChatActionAsync(Context.Message.Chat.Id, ChatAction.Typing);
+                Booru selectedBooru = await _chatService.GetSelectedBooruAsync(Context.Chat.ChatId);
 
                 await client.SendTextMessageAsync(
-                    chatId: context.Chat.ChatId,
-                    text: $"Current mode is {context.Chat.ChatMode}\n" +
+                    chatId: Context.Chat.ChatId,
+                    text: $"Current mode is {Context.Chat.ChatMode}\n" +
                           $"Current source is {selectedBooru.BooruName}",
                     replyMarkup: InlineKeyboards.settingsKeyboard,
-                    replyToMessageId: context.Message.MessageId
+                    replyToMessageId: Context.Message.MessageId
                 );
             }
             catch(Exception e)
             {
-                await client.SendTextMessageAsync(context.Message.Chat.Id, e.Message);
+                await client.SendTextMessageAsync(Context.Message.Chat.Id, e.Message);
                 _logger.LogError(e.Message);
             }
         }

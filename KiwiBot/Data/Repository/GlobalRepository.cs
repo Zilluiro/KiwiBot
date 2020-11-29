@@ -1,8 +1,5 @@
 ﻿using KiwiBot.Data.Entities;
-using KiwiBot.Data.Enumerations;
-using KiwiBot.Helpers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +11,6 @@ namespace KiwiBot.Data.Repository
     class GlobalRepository: IGlobalRepository
     {
         private readonly DataContext _dataContext;
-        private readonly BotSettings _configuration;
 
         public GlobalRepository(DataContext dataContext)
         {
@@ -67,7 +63,9 @@ namespace KiwiBot.Data.Repository
 
         public async Task<Booru> GetSelectedBooruAsync(long chatId)
         {
-            return await _dataContext.Boorus.Include(x => x.Chats)
+            return await _dataContext.Boorus
+                .Include(x => x.Chats)
+                .Include(x => x.Engine)
                 .FirstOrDefaultAsync(x => x.Chats.Any(x => x.ChatId == chatId));
         }
     }

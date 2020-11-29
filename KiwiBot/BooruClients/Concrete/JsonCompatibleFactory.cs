@@ -1,20 +1,19 @@
-﻿using KiwiBot.BooruClients.Factories;
+﻿using KiwiBot.BooruClients.Abstract;
 using KiwiBot.Data.Entities;
 using KiwiBot.DataModels;
 using KiwiBot.Helpers;
 using KiwiBot.Helpers.Converters;
-using KiwiBot.Services.Implementations;
 using System.Net.Http;
 
 namespace KiwiBot.BooruClients
 {
-    class CompatibleBooruFactory : IAbstractBooruFactory
+    class JsonCompatibleFactory : IAbstractBooruFactory
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public string FactoryName => "Compatible";
+        public string Engine => "DanbooruMoebooru";
 
-        public CompatibleBooruFactory(IHttpClientFactory httpClientFactory)
+        public JsonCompatibleFactory(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
@@ -24,12 +23,12 @@ namespace KiwiBot.BooruClients
             BooruClientConfiguration configuration = new BooruClientConfiguration
             {
                 ApiEndpoint = booru.ApiEndpoint,
-                FileUrlKey = booru.FileUrlKey,
-                TagsKey = booru.TagsKey
+                FileUrlKey = booru.Engine.FileUrlKey,
+                TagsKey = booru.Engine.TagsKey
             };
 
-            var settings = JsonModelConverter.GenerateSerializerSettings<CompatiblePostModel>(configuration);
-            return new CompatibleBooruClient(configuration, _httpClientFactory, settings);
+            var settings = JsonModelConverter.GenerateSerializerSettings<JsonCompatiblePostModel>(configuration);
+            return new JsonCompatibleClient(configuration, _httpClientFactory, settings);
         }
     }
 }

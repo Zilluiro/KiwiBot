@@ -1,4 +1,4 @@
-﻿using KiwiBot.BooruClients;
+﻿using KiwiBot.BooruClients.Abstract;
 using KiwiBot.Data.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;

@@ -1,4 +1,5 @@
-﻿using KiwiBot.Data.Enumerations;
+﻿using KiwiBot.BooruClients.Abstract;
+using KiwiBot.Data.Enumerations;
 using KiwiBot.DataModels;
 using KiwiBot.Helpers;
 using KiwiBot.Helpers.Converters;
@@ -10,14 +11,14 @@ using System.Threading.Tasks;
 
 namespace KiwiBot.BooruClients
 {
-    class CompatibleBooruClient : AbstractBooruClient
+    class JsonCompatibleClient : AbstractBooruClient
     {
-        public CompatibleBooruClient(BooruClientConfiguration configuration, IHttpClientFactory httpClientFactory, JsonSerializerSettings settings)
+        public JsonCompatibleClient(BooruClientConfiguration configuration, IHttpClientFactory httpClientFactory, JsonSerializerSettings settings)
             : base(httpClientFactory, configuration, new JsonModelConverter(settings))
         {
         }
 
-        public async override Task<AbstractPostModel> GetLastPictureAsync(ChatModeEnum mode)
+        public async override Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode)
         {
             Dictionary<string, string> query = new Dictionary<string, string>
             {
@@ -29,11 +30,11 @@ namespace KiwiBot.BooruClients
                 tags.Add("rating:safe");
 
             query = AddTags(query, tags);
-            var result = await RetrieveDataAsync<List<CompatiblePostModel>>(_configuration.ApiEndpoint, query);
+            var result = await RetrieveDataAsync<List<JsonCompatiblePostModel>>(_configuration.ApiEndpoint, query);
             return result.FirstOrDefault();
         }
 
-        public async override Task<AbstractPostModel> GetRandomPictureAsync(ChatModeEnum mode)
+        public async override Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode)
         {
             Dictionary<string, string> query = new Dictionary<string, string>
             {
@@ -45,7 +46,7 @@ namespace KiwiBot.BooruClients
                 tags.Add("rating:safe");
 
             query = AddTags(query, tags);
-            var result = await RetrieveDataAsync<List<CompatiblePostModel>>(_configuration.ApiEndpoint, query);
+            var result = await RetrieveDataAsync<List<JsonCompatiblePostModel>>(_configuration.ApiEndpoint, query);
 
             return result.FirstOrDefault();
         }

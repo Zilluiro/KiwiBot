@@ -1,5 +1,4 @@
-﻿using KiwiBot.BooruClients;
-using KiwiBot.BooruClients.Factories;
+﻿using KiwiBot.BooruClients.Abstract;
 using KiwiBot.Data.Entities;
 using KiwiBot.Data.Repository;
 using KiwiBot.Helpers;
@@ -38,8 +37,8 @@ namespace KiwiBot.Services.Implementations
 
         public AbstractBooruClient GetBooruClient(Booru booru)
         {
-            string factoryName = booru.ApiCompatible == true ? "Compatible" : booru.BooruName;
-            IAbstractBooruFactory booruFactory = _booruFactories.Single(x => x.FactoryName == factoryName);
+            string engine = booru.Engine.EngineName;
+            IAbstractBooruFactory booruFactory = _booruFactories.Single(x => x.Engine.Contains(engine));
 
             return booruFactory.CreateBooruClient(booru);
         }

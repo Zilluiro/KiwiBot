@@ -1,10 +1,14 @@
 ﻿using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace KiwiBot.DataModels
 {
-    abstract class AbstractPostModel
+    public class BasePostModel
     {
+        [XmlIgnore]
         private string _tags;
+
+        [XmlIgnore]
         public virtual string Tags {
             get
             {
@@ -12,11 +16,11 @@ namespace KiwiBot.DataModels
             }
             set
             {
-                if (_tags.Length > 200)
-                    _tags = value.Substring(0,200);
+                _tags = (_tags?.Length > 200) ? _tags = value.Substring(0,200) : value;
             }
         }
 
+        [XmlIgnore]
         public virtual string FileUrl { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using KiwiBot.BooruClients.Factories;
+﻿using KiwiBot.BooruClients.Abstract;
 using KiwiBot.Data;
 using KiwiBot.Data.Repository;
 using KiwiBot.Extensions;

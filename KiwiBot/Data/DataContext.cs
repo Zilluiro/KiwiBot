@@ -16,6 +16,7 @@ namespace KiwiBot.Data
                 .ValueGeneratedNever();
         }
 
+        public DbSet<Engine> Engines { get; set; }
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Booru> Boorus { get; set; }
     }

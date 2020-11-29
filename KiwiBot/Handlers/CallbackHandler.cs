@@ -26,14 +26,14 @@ namespace KiwiBot.Handlers
             _logger = logger;
         }
 
-        private async Task DisplayCurrentSettings(QueryContext context)
+        private async Task DisplayCurrentSettings()
         {
-            Booru selectedBooru = await _chatService.GetSelectedBooruAsync(context.Chat.ChatId);
+            Booru selectedBooru = await _chatService.GetSelectedBooruAsync(Context.Chat.ChatId);
 
-            await context.TelegramBotClient.EditMessageTextAsync(
-                chatId: context.Chat.ChatId,
-                context.Message.MessageId,
-                text: $"Current mode is {context.Chat.ChatMode}\n" +
+            await Context.TelegramBotClient.EditMessageTextAsync(
+                chatId: Context.Chat.ChatId,
+                Context.Message.MessageId,
+                text: $"Current mode is {Context.Chat.ChatMode}\n" +
                         $"Current source is {selectedBooru.BooruName}",
                 replyMarkup: InlineKeyboards.settingsKeyboard
             );
@@ -41,65 +41,67 @@ namespace KiwiBot.Handlers
 
         [Registered]
         [Command("Choose mode")]
-        public async Task ChangeChatModeCallbackAsync(QueryCallbackContext context)
+        public async Task ChangeChatModeCallbackAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
+            QueryCallbackContext callbackContext = Context as QueryCallbackContext;
 
             try
             {
-                await _chatService.UpdateChatModeAsync(context.Chat, context.Callback.Data);
-                await client.AnswerCallbackQueryAsync(context.Callback.Id, $"{context.Callback.Data} mode enabled");
-                await DisplayCurrentSettings(context);
+                await _chatService.UpdateChatModeAsync(callbackContext.Chat, callbackContext.Callback.Data);
+                await client.AnswerCallbackQueryAsync(callbackContext.Callback.Id, $"{callbackContext.Callback.Data} mode enabled");
+                await DisplayCurrentSettings();
             }
             catch(Exception e)
             {
-                await client.SendTextMessageAsync(context.Chat.ChatId, e.Message);
+                await client.SendTextMessageAsync(Context.Chat.ChatId, e.Message);
                 _logger.LogError(e.Message);
             }
         }
 
         [Registered]
         [Command("Change mode")]
-        public async Task DisplayChatModesAsync(QueryCallbackContext context)
+        public async Task DisplayChatModesAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
 
             try
             {
-                await client.EditMessageTextAsync(chatId: context.Chat.ChatId, context.Message.MessageId, "Choose mode");
-                await client.EditMessageReplyMarkupAsync(chatId: context.Chat.ChatId, context.Message.MessageId, InlineKeyboards.modeKeyboard);
+                await client.EditMessageTextAsync(chatId: Context.Chat.ChatId, Context.Message.MessageId, "Choose mode");
+                await client.EditMessageReplyMarkupAsync(chatId: Context.Chat.ChatId, Context.Message.MessageId, InlineKeyboards.modeKeyboard);
             }
             catch(Exception e)
             {
-                await client.SendTextMessageAsync(context.Chat.ChatId, e.Message);
+                await client.SendTextMessageAsync(Context.Chat.ChatId, e.Message);
                 _logger.LogError(e.Message);
             }
         }
 
         [Registered]
         [Command("Choose source")]
-        public async Task ChangeBooruCallbackAsync(QueryCallbackContext context)
+        public async Task ChangeBooruCallbackAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
+            QueryCallbackContext callbackContext = Context as QueryCallbackContext;
 
             try
             {   
-                await _chatService.UpdateChoosenBooruAsync(context.Chat, context.Callback.Data);
-                await client.AnswerCallbackQueryAsync(context.Callback.Id, $"{context.Callback.Data} chosen");
-                await DisplayCurrentSettings(context);
+                await _chatService.UpdateChoosenBooruAsync(callbackContext.Chat, callbackContext.Callback.Data);
+                await client.AnswerCallbackQueryAsync(callbackContext.Callback.Id, $"{callbackContext.Callback.Data} chosen");
+                await DisplayCurrentSettings();
             }
             catch(Exception e)
             {
-                await client.SendTextMessageAsync(context.Chat.ChatId, e.Message);
+                await client.SendTextMessageAsync(Context.Chat.ChatId, e.Message);
                 _logger.LogError(e.Message);
             }
         }
 
         [Registered]
         [Command("Change source")]
-        public async Task DisplayBoorusCallbackAsync(QueryCallbackContext context)
+        public async Task DisplayBoorusCallbackAsync()
         {
-            TelegramBotClient client = context.TelegramBotClient;
+            TelegramBotClient client = Context.TelegramBotClient;
 
             try
             {   
@@ -107,12 +109,12 @@ namespace KiwiBot.Handlers
                 List<Booru> boorus = await _booruService.GetBoorusAsync();
                 boorus.ForEach(x => buttons.Add(InlineKeyboardButton.WithCallbackData(x.BooruName, $"/{x.BooruName}")));
 
-                await client.EditMessageTextAsync(chatId: context.Chat.ChatId, context.Message.MessageId, "Choose source");
-                await client.EditMessageReplyMarkupAsync(chatId: context.Chat.ChatId, context.Message.MessageId, new InlineKeyboardMarkup(new[] { buttons.ToArray()}));
+                await client.EditMessageTextAsync(chatId: Context.Chat.ChatId, Context.Message.MessageId, "Choose source");
+                await client.EditMessageReplyMarkupAsync(chatId: Context.Chat.ChatId, Context.Message.MessageId, new InlineKeyboardMarkup(new[] { buttons.ToArray()}));
             }
             catch(Exception e)
             {
-                await client.SendTextMessageAsync(context.Chat.ChatId, e.Message);
+                await client.SendTextMessageAsync(Context.Chat.ChatId, e.Message);
                 _logger.LogError(e.Message);
             }
         }
