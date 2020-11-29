@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace KiwiBot.DataModels
 {
@@ -16,7 +15,7 @@ namespace KiwiBot.DataModels
             }
             set
             {
-                _tags = (_tags?.Length > 200) ? _tags = value.Substring(0,200) : value;
+                _tags = (value?.Length > 200) ? value.Substring(0, 200) : value;
             }
         }
 
