@@ -1,8 +1,6 @@
 ﻿using KiwiBot.Attributes;
-using KiwiBot.Constants;
 using KiwiBot.Data.Entities;
 using KiwiBot.DataModels;
-using KiwiBot.Helpers;
 using KiwiBot.Services;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,6 +8,7 @@ using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace KiwiBot.Handlers
 {
@@ -101,11 +100,11 @@ namespace KiwiBot.Handlers
                 await client.SendChatActionAsync(Context.Message.Chat.Id, ChatAction.Typing);
                 Booru selectedBooru = await _chatService.GetSelectedBooruAsync(Context.Chat.ChatId);
 
+                (string message, InlineKeyboardMarkup markup) = BuildSettingsMessage(Context.Chat, selectedBooru);
                 await client.SendTextMessageAsync(
                     chatId: Context.Chat.ChatId,
-                    text: $"Current mode is {Context.Chat.ChatMode}\n" +
-                          $"Current source is {selectedBooru.BooruName}",
-                    replyMarkup: InlineKeyboards.settingsKeyboard,
+                    text: message,
+                    replyMarkup: markup,
                     replyToMessageId: Context.Message.MessageId
                 );
             }

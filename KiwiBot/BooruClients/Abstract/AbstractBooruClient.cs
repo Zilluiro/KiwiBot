@@ -34,42 +34,25 @@ namespace KiwiBot.BooruClients.Abstract
 
         protected async Task<TModel> RetrieveDataAsync<TModel>(string url, Dictionary<string, string> query) where TModel : class
         {
-            try
-            {
-                HttpResponseMessage reponse = await MakeRequestAsync(url, query);
+            HttpResponseMessage response = await MakeRequestAsync(url, query);
+            string content = await ReadResponseAsync(response);
 
-                if (reponse.IsSuccessStatusCode)
-                {
-                    string content = await reponse.Content.ReadAsStringAsync();
-                    TModel model = _dataConverter.From<TModel>(content);
-                    return model;
-                }
-
-                throw new Exception();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("cannot retrieve data from api");
-            }
+            TModel model = _dataConverter.From<TModel>(content);
+            return model;
         }
 
         protected async Task<string> RetrieveDataAsync(string url, Dictionary<string, string> query)
         {
-            try
-            {
-                HttpResponseMessage reponse = await MakeRequestAsync(url, query);
+            HttpResponseMessage response = await MakeRequestAsync(url, query);
+            return await ReadResponseAsync(response);
+        }
 
-                if (reponse.IsSuccessStatusCode)
-                {
-                    return await reponse.Content.ReadAsStringAsync();
-                }
+        private async Task<string> ReadResponseAsync(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsStringAsync();
 
-                throw new Exception();
-            }
-            catch (Exception e)
-            {
-                throw new Exception("cannot retrieve data from api");
-            }
+            throw new Exception("cannot retrieve data from api");
         }
 
         private async Task<HttpResponseMessage> MakeRequestAsync(string url, Dictionary<string, string> query)
@@ -82,7 +65,7 @@ namespace KiwiBot.BooruClients.Abstract
             return response;
         }
 
-        public abstract Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode);
-        public abstract Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode);
+        public abstract Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode, bool locked);
+        public abstract Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode, bool locked);
     }
 }

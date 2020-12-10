@@ -23,7 +23,7 @@ namespace KiwiBot.Services.Implementations
 
         private string BeautifyTags(string tags)
         {
-            string pattern = @"(\+|-|\(|\)|'|\.|&|/|\?)";
+            string pattern = @"(\+|-|\(|\)|'|\.|&|/|\?|~)";
             return tags?.Split(' ').Aggregate(string.Empty, 
                 (left, right) => $"{left}" +
             $" {(right.Length > 1 == true ? "#": string.Empty)}{Regex.Replace(right, pattern, "_")}");
@@ -34,7 +34,7 @@ namespace KiwiBot.Services.Implementations
             Booru booru = await _chatService.GetSelectedBooruAsync(chat.ChatId);
             AbstractBooruClient booruService = _booruService.GetBooruClient(booru);
 
-            BasePostModel model = await booruService.GetLastPictureAsync(chat.ChatMode);
+            BasePostModel model = await booruService.GetLastPictureAsync(chat.ChatMode, booru.LockedMode);
             model.Tags = BeautifyTags(model.Tags);
             return model;
         }
@@ -44,7 +44,7 @@ namespace KiwiBot.Services.Implementations
             Booru booru = await _chatService.GetSelectedBooruAsync(chat.ChatId);
             AbstractBooruClient booruService = _booruService.GetBooruClient(booru);
 
-            BasePostModel model = await booruService.GetRandomPictureAsync(chat.ChatMode);
+            BasePostModel model = await booruService.GetRandomPictureAsync(chat.ChatMode, booru.LockedMode);
             model.Tags = BeautifyTags(model.Tags);
             return model;
         }

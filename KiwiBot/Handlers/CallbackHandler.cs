@@ -30,12 +30,12 @@ namespace KiwiBot.Handlers
         {
             Booru selectedBooru = await _chatService.GetSelectedBooruAsync(Context.Chat.ChatId);
 
+            (string message, InlineKeyboardMarkup markup) = BuildSettingsMessage(Context.Chat, selectedBooru);
             await Context.TelegramBotClient.EditMessageTextAsync(
                 chatId: Context.Chat.ChatId,
                 Context.Message.MessageId,
-                text: $"Current mode is {Context.Chat.ChatMode}\n" +
-                        $"Current source is {selectedBooru.BooruName}",
-                replyMarkup: InlineKeyboards.settingsKeyboard
+                text: message,
+                replyMarkup: markup
             );
         }
 

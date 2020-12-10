@@ -14,17 +14,12 @@ namespace KiwiBot.BooruClients
 {
     class GelbooruCompatibleClient: AbstractBooruClient
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IDataConverter _dataConverter;
-
         public GelbooruCompatibleClient(BooruClientConfiguration configuration, IHttpClientFactory httpClientFactory, IDataConverter dataConverter)
             : base(httpClientFactory, configuration, dataConverter)
         {
-            _httpClientFactory = httpClientFactory;
-            _dataConverter = dataConverter;
         }
 
-        public async override Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode)
+        public async override Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode, bool locked)
         {
             Dictionary<string, string> query = new Dictionary<string, string>
             {
@@ -34,18 +29,19 @@ namespace KiwiBot.BooruClients
                 { "q", "index" },
             };
 
-            List<string> tags = new List<string>();
-            if (mode == ChatModeEnum.SFW)
-                tags.Add("safe");
+/*            List<string> tags = new List<string>();
+            if (!locked && mode == ChatModeEnum.SFW)
+                tags.Add("rating:safe");
 
-            query = AddTags(query, tags);
+            query = AddTags(query, tags);*/
+
             var result = await RetrieveDataAsync<SafeBooruPostsModel>(_configuration.ApiEndpoint, query);
             GelbooruCompatiblePostModel lastPost = result.Posts.FirstOrDefault();
 
             return lastPost;
         }
 
-        public override async Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode)
+        public override async Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode, bool locked)
         {
             Dictionary<string, string> query = new Dictionary<string, string>
             {
@@ -54,11 +50,12 @@ namespace KiwiBot.BooruClients
                 { "limit", "1" },
             };
 
-            List<string> tags = new List<string>();
-            if (mode == ChatModeEnum.SFW)
-                tags.Add("safe");
+/*            List<string> tags = new List<string>();
+            if (!locked && mode == ChatModeEnum.SFW)
+                query.Add("rating", "s");
 
-            query = AddTags(query, tags);
+            query = AddTags(query, tags);*/
+
             string content = await RetrieveDataAsync(_configuration.ApiEndpoint, query);
 
             IBrowsingContext context = BrowsingContext.New(Configuration.Default);

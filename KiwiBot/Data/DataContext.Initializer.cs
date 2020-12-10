@@ -54,12 +54,6 @@ namespace KiwiBot.Data
                     },
                     new Booru
                     {
-                        BooruName = "SafeBooru",
-                        ApiEndpoint = "https://safebooru.org/index.php",
-                        Engine = engines.FirstOrDefault(x => x.EngineName == "Gelbooru"),
-                    },
-                    new Booru
-                    {
                         BooruName = "Konachan",
                         ApiEndpoint = "https://konachan.com/post.json",
                         Engine = engines.FirstOrDefault(x => x.EngineName == "Moebooru"),
@@ -69,6 +63,20 @@ namespace KiwiBot.Data
                         BooruName = "LoliBooru",
                         ApiEndpoint = "https://lolibooru.moe/post.json",
                         Engine = engines.FirstOrDefault(x => x.EngineName == "Moebooru"),
+                    },
+                    new Booru
+                    {
+                        BooruName = "SafeBooru",
+                        ApiEndpoint = "https://safebooru.org/index.php",
+                        Engine = engines.FirstOrDefault(x => x.EngineName == "Gelbooru"),
+                        LockedMode = true,
+                    },
+                    new Booru
+                    {
+                        BooruName = "Gelbooru",
+                        ApiEndpoint = "https://gelbooru.com/index.php",
+                        Engine = engines.FirstOrDefault(x => x.EngineName == "Gelbooru"),
+                        LockedMode = true,
                     }
                 };
 

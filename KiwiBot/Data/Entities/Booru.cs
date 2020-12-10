@@ -15,6 +15,9 @@ namespace KiwiBot.Data.Entities
         public string ApiEndpoint { get;set; }
 
         [Required]
+        public bool LockedMode { get; set; }
+
+        [Required]
         public int EngineId { get;set; }
 
         public Engine Engine { get; set; }

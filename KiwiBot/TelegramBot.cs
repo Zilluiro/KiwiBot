@@ -97,10 +97,10 @@ namespace KiwiBot
         private async Task ProcessCommand(Type handler, QueryContext context)
         {
             Dictionary<string, MethodInfo> allCommands = _registeredHandlers[handler] ?? throw new Exception("handler not found");
-            MethodInfo foundCommand = allCommands.ToList().Where(x => context.Command.StartsWith(x.Key)).Select(x => x.Value).FirstOrDefault();
 
-            if (foundCommand is object)
+            if (allCommands.ContainsKey(context.Command))
             {
+                MethodInfo foundCommand = allCommands[context.Command];
                 long chatId = context.Message.Chat.Id;
 
                 using(var scope = _scopeFactory.CreateScope())

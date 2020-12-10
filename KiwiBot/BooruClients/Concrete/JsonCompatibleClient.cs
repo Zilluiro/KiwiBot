@@ -18,7 +18,7 @@ namespace KiwiBot.BooruClients
         {
         }
 
-        public async override Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode)
+        public async override Task<BasePostModel> GetLastPictureAsync(ChatModeEnum mode, bool locked)
         {
             Dictionary<string, string> query = new Dictionary<string, string>
             {
@@ -26,7 +26,7 @@ namespace KiwiBot.BooruClients
             };
 
             List<string> tags = new List<string>();
-            if (mode == ChatModeEnum.SFW)
+            if (!locked && mode == ChatModeEnum.SFW)
                 tags.Add("rating:safe");
 
             query = AddTags(query, tags);
@@ -34,7 +34,7 @@ namespace KiwiBot.BooruClients
             return result.FirstOrDefault();
         }
 
-        public async override Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode)
+        public async override Task<BasePostModel> GetRandomPictureAsync(ChatModeEnum mode, bool locked)
         {
             Dictionary<string, string> query = new Dictionary<string, string>
             {
@@ -42,7 +42,7 @@ namespace KiwiBot.BooruClients
             };
 
             List<string> tags = new List<string>() { "order:random" };
-            if (mode == ChatModeEnum.SFW)
+            if (!locked && mode == ChatModeEnum.SFW)
                 tags.Add("rating:safe");
 
             query = AddTags(query, tags);
