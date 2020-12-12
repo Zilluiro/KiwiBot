@@ -38,7 +38,7 @@ namespace KiwiBot.Services.Implementations
         public AbstractBooruClient GetBooruClient(Booru booru)
         {
             string engine = booru.Engine.EngineName;
-            IAbstractBooruFactory booruFactory = _booruFactories.Single(x => x.Engine.Contains(engine));
+            IAbstractBooruFactory booruFactory = _booruFactories.Single(x => x.SupportedEngines.Contains(engine));
 
             return booruFactory.CreateBooruClient(booru);
         }

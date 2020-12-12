@@ -7,7 +7,7 @@ namespace KiwiBot.Attributes
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     class CommandAttribute: Attribute
     {
-        public List<string> Commands {get; set; }
+        public List<string> Commands { get; set; }
 
         public CommandAttribute(params string[] commands)
         {

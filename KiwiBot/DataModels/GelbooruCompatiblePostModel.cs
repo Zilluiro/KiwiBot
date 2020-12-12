@@ -12,10 +12,10 @@ namespace KiwiBot.DataModels
         public override string FileUrl { get; set; }
     }
     
-	[XmlRoot(ElementName="posts")]
+	[XmlRoot(ElementName = "posts")]
 	public class SafeBooruPostsModel 
     {
-	    [XmlElement(ElementName="post")]
+	    [XmlElement(ElementName = "post")]
 	    public List<GelbooruCompatiblePostModel> Posts { get; set; }
 	}
 }

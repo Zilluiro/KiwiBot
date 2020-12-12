@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace KiwiBot.Handlers
@@ -17,6 +16,7 @@ namespace KiwiBot.Handlers
         private readonly IBooruService _booruService;
         private readonly IChatService _chatService;
         private readonly ILogger<CallbackHandler> _logger;
+        private QueryCallbackContext callbackContext => Context as QueryCallbackContext;
 
         public CallbackHandler(IChatService chatService, IBooruService booruService,
             ILogger<CallbackHandler> logger)
@@ -31,7 +31,7 @@ namespace KiwiBot.Handlers
             Booru selectedBooru = await _chatService.GetSelectedBooruAsync(Context.Chat.ChatId);
 
             (string message, InlineKeyboardMarkup markup) = BuildSettingsMessage(Context.Chat, selectedBooru);
-            await Context.TelegramBotClient.EditMessageTextAsync(
+            await client.EditMessageTextAsync(
                 chatId: Context.Chat.ChatId,
                 Context.Message.MessageId,
                 text: message,
@@ -43,9 +43,6 @@ namespace KiwiBot.Handlers
         [Command("Choose mode")]
         public async Task ChangeChatModeCallbackAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
-            QueryCallbackContext callbackContext = Context as QueryCallbackContext;
-
             try
             {
                 await _chatService.UpdateChatModeAsync(callbackContext.Chat, callbackContext.Callback.Data);
@@ -63,8 +60,6 @@ namespace KiwiBot.Handlers
         [Command("Change mode")]
         public async Task DisplayChatModesAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
-
             try
             {
                 await client.EditMessageTextAsync(chatId: Context.Chat.ChatId, Context.Message.MessageId, "Choose mode");
@@ -81,9 +76,6 @@ namespace KiwiBot.Handlers
         [Command("Choose source")]
         public async Task ChangeBooruCallbackAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
-            QueryCallbackContext callbackContext = Context as QueryCallbackContext;
-
             try
             {   
                 await _chatService.UpdateChoosenBooruAsync(callbackContext.Chat, callbackContext.Callback.Data);
@@ -101,8 +93,6 @@ namespace KiwiBot.Handlers
         [Command("Change source")]
         public async Task DisplayBoorusCallbackAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
-
             try
             {   
                 List<InlineKeyboardButton> buttons = new List<InlineKeyboardButton>();

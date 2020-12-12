@@ -6,6 +6,6 @@ namespace KiwiBot.BooruClients.Abstract
     {
         AbstractBooruClient CreateBooruClient(Booru booru);
 
-        string Engine { get; }
+        string[] SupportedEngines { get; }
     }
 }

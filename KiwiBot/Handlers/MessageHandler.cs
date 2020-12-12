@@ -5,7 +5,6 @@ using KiwiBot.Services;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -29,8 +28,6 @@ namespace KiwiBot.Handlers
         [Command("/ping", "/test")]
         public async Task EchoCommandAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
-
             await client.SendChatActionAsync(Context.Message.Chat.Id, ChatAction.Typing);
             await client.SendTextMessageAsync(Context.Message.Chat.Id, "pong");
         }
@@ -39,7 +36,6 @@ namespace KiwiBot.Handlers
         [Command("/last")]
         public async Task LastCommandAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
             try
             {
                 await client.SendChatActionAsync(Context.Chat.ChatId, ChatAction.UploadPhoto);
@@ -58,7 +54,6 @@ namespace KiwiBot.Handlers
         [Command("/random")]
         public async Task RandomCommandAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
             try
             {
                 await client.SendChatActionAsync(Context.Chat.ChatId, ChatAction.UploadPhoto);
@@ -76,8 +71,6 @@ namespace KiwiBot.Handlers
         [Command("/start")]
         public async Task StartCommandAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
-
             try
             {
                 await _chatService.RegisterChatAsync(Context.Message.Chat.Id);
@@ -93,8 +86,6 @@ namespace KiwiBot.Handlers
         [Command("/settings")]
         public async Task SettingsCommandAsync()
         {
-            TelegramBotClient client = Context.TelegramBotClient;
-
             try
             {
                 await client.SendChatActionAsync(Context.Message.Chat.Id, ChatAction.Typing);

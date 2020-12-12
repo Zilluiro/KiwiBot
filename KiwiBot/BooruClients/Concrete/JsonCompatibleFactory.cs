@@ -11,7 +11,7 @@ namespace KiwiBot.BooruClients
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public string Engine => "DanbooruMoebooru";
+        public string[] SupportedEngines => new[] { "Danbooru", "Moebooru" };
 
         public JsonCompatibleFactory(IHttpClientFactory httpClientFactory)
         {

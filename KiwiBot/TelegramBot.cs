@@ -1,5 +1,4 @@
 ﻿using KiwiBot.Attributes;
-using KiwiBot.Data.Entities;
 using KiwiBot.Extensions;
 using KiwiBot.Handlers;
 using KiwiBot.Helpers;
@@ -18,7 +17,6 @@ using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InlineQueryResults;
 using Chat = KiwiBot.Data.Entities.Chat;
 
 namespace KiwiBot
@@ -41,14 +39,14 @@ namespace KiwiBot
 
         public void Start()
         {
-            ConfigureAsync();
+            Configure();
 
             _telegramBot.StartReceiving();
             Console.ReadLine();
             _telegramBot.StopReceiving();
         }
 
-        private void ConfigureAsync()
+        private void Configure()
         {
             RegisterCommands();
 
@@ -92,7 +90,6 @@ namespace KiwiBot
             RegisteredAttribute attribute = foundCommand.GetCustomAttributes(true).OfType<RegisteredAttribute>().FirstOrDefault();
             return (attribute is object) ? (await chatService.FindChatAsync(chatId), true) : default;
         }
-
 
         private async Task ProcessCommand(Type handler, QueryContext context)
         {

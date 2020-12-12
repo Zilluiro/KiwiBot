@@ -15,6 +15,6 @@ namespace KiwiBot.Data.Entities
 
         public string FileUrlKey { get; set; }
 
-        public List<Booru> Boorus { get; set;}
+        public List<Booru> Boorus { get; set; }
     }
 }

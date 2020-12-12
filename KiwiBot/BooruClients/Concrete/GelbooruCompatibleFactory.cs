@@ -10,7 +10,7 @@ namespace KiwiBot.BooruClients
     {
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public string Engine => "Gelbooru";
+        public string[] SupportedEngines => new[] { "Gelbooru" };
 
         public GelbooruCompatibleFactory(IHttpClientFactory httpClientFactory)
         {

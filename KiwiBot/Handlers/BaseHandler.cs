@@ -1,6 +1,7 @@
 ﻿using KiwiBot.Data.Entities;
 using KiwiBot.Helpers;
 using System.Collections.Generic;
+using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace KiwiBot.Handlers
@@ -8,6 +9,8 @@ namespace KiwiBot.Handlers
     abstract class BaseHandler
     {
         public QueryContext Context { get; set; }
+
+        protected TelegramBotClient client => Context.TelegramBotClient;
 
         protected (string message, InlineKeyboardMarkup markup) BuildSettingsMessage(Chat chat, Booru booru)
         {

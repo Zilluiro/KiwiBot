@@ -18,13 +18,13 @@ namespace KiwiBot.Data.Repository
         }
 
         #region Generics
-        public async Task<T> FindAsync<T>(object key) where T: class
+        public async Task<T> FindAsync<T>(object key) where T : class
         {
             return await _dataContext.Set<T>().FindAsync(key);
         } 
         
         public async Task<T> FindAsync<T>(Expression<Func<T, bool>> predicate, 
-            params Expression<Func<T, object>>[] includes) where T: class
+            params Expression<Func<T, object>>[] includes) where T : class
         {
             IQueryable<T> query = _dataContext.Set<T>();
 
